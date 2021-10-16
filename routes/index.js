@@ -148,9 +148,14 @@ const getLastEvent = catchReject(async (req, res, next) => {
 
 const countPenalties = catchReject(async (req, res, next) => {
     const { from, to } = req.query;
+    let sum = 0;
     
     const result = await Chorraxa.countPenaltiesByCategory(from, to);
-    return res.send(result);
+    
+    result.map(r => sum += parseInt(r.count))
+    return res.send({
+        result, sum
+    });
   })
 
 
