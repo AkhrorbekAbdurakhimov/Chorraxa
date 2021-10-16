@@ -97,7 +97,7 @@ class Chorraxa {
         const result = await database.query(
             [
                 "SELECT car_number, to_char(the_date, 'YYYY-MM-DD HH24:MI:SS') AS the_date,",
-                "kr.title AS rules, CONCAT('http://', CAST($1 AS VARCHAR), ':8080/foreign/chorraxa/image?c_id=', kes.camera_id, '&p_id=1&t=all&c=photos&p=car', '&d=', kes.the_date) as event_photo,",
+                "kr.title AS rules, CONCAT('http://', CAST($1 AS VARCHAR), '/foreign/chorraxa/image?c_id=', kes.camera_id, '&p_id=1&t=all&c=photos&p=car', '&d=', kes.the_date) as event_photo,",
                 "cros.title as object_title, 'chorraxa' as type, cros.coordinates as coordinates",
                 'FROM kv_events kes',
                 getJoins(),
@@ -136,7 +136,7 @@ class Chorraxa {
     static async getLastEvent(previousTheDate, host) {
         try {
             const sql = `
-            SELECT camera_id, the_date::varchar, cros.coordinates, CONCAT('http://', CAST($2 AS VARCHAR), ':8080/foreign/chorraxa/image?c_id=', camera_id, '&p_id=1&t=all&c=photos&p=car', '&d=', the_date) as event_photo
+            SELECT camera_id, the_date::varchar, cros.coordinates, CONCAT('http://', CAST($2 AS VARCHAR), '/foreign/chorraxa/image?c_id=', camera_id, '&p_id=1&t=all&c=photos&p=car', '&d=', the_date) as event_photo
             FROM
                 kv_events e
             JOIN
@@ -150,13 +150,14 @@ class Chorraxa {
             ORDER BY
                 the_date ASC
             LIMIT 
-                1`;
+                5`;
             const result = await database.query(sql, [previousTheDate, host]);
             result.rows.map(el => {
                 el.event_photo = el.event_photo.split('=')[0] + "=" + el.event_photo.split('=')[1] + "=" + el.event_photo.split('=')[2] + "=" + el.event_photo.split('=')[3] + "=" + el.event_photo.split('=')[4] + "=" + el.event_photo.split('=')[5] + "=" + encodeURIComponent(el.event_photo.split('=')[6])
             })
             return result.rows || [];
         } catch (error) {
+            console.log(error);
             return [];
         }
     }

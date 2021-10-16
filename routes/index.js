@@ -92,7 +92,7 @@ const searchEvent = catchReject(async (req, res) => {
 const autoSearchEvent = catchReject(async (req, res) => {
     let fromDate = req.body.from_date.split(' ')
     let toDate = req.body.to_date.split(' ')
-    let host = req.headers['x-host'] || '192.168.2.68:1998'
+    let host = req.headers['x-host'] ? req.headers['x-host'] + ':8080'  : '192.168.2.68:8080'
     
     req.body.from_date = fromDate[0].split('.')[2] + '-' + fromDate[0].split('.')[1] + '-' + fromDate[0].split('.')[0] + ' ' + fromDate[1]
     req.body.to_date = toDate[0].split('.')[2] + '-' + toDate[0].split('.')[1] + '-' + toDate[0].split('.')[0] + ' ' + toDate[1]
@@ -132,7 +132,7 @@ const getEventPhoto = catchReject(async (req, res, next) => {
 });
 
 const getLastEvent = catchReject(async (req, res, next) => {
-    let host = req.headers['x-host'] || '192.168.2.68:1998'
+    let host = req.headers['x-host'] ? req.headers['x-host'] + ':8080'  : '192.168.2.68:8080'
     if (!req.query.the_date) {
       return next({
         status: 400,
@@ -140,7 +140,10 @@ const getLastEvent = catchReject(async (req, res, next) => {
       });
     }
     const { the_date: theDate } = req.query;
-    const results = await Chorraxa.getLastEvent(theDate, host);  
+    console.log(req.query);
+    
+    const results = await Chorraxa.getLastEvent(theDate, host);
+    console.log(results);  
     return res.send({
         data: results,
     });
