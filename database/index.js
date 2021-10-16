@@ -53,6 +53,22 @@ class Chorraxa {
         return result.rows || [];
     }
 
+    static async countPenaltiesByCategory(from, to) {
+        const sql = `
+            SELECT 
+                kr.id, kr.title, COUNT(kes.id)
+            FROM 
+                kv_events_sent kes
+            JOIN
+                kv_rules kr ON kr.id::text = kes.args->>'rules'
+            WHERE 
+                the_date BETWEEN $1 AND $2 AND args->>'rules' != '0'
+            GROUP BY kr.id, kr.title;`;
+
+        const result = await database.query(sql, [from, to]);
+        return result.rows || [];
+    }
+
     static async getComputers(crossroadId) {
         const result = await database.query(
             [

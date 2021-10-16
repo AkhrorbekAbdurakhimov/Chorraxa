@@ -146,6 +146,18 @@ const getLastEvent = catchReject(async (req, res, next) => {
     });
 });
 
+const countPenalties = catchReject(async (req, res, next) => {
+    const { from, to } = req.query;
+    let sum = 0;
+    
+    const result = await Chorraxa.countPenaltiesByCategory(from, to);
+    
+    result.map(r => sum += parseInt(r.count))
+    return res.send({
+        result, sum
+    });
+  })
+
 
 router.use(
     '/image',
@@ -176,6 +188,7 @@ router.use(
 
 router.get('/', getPosts)
 router.get('/chorraxas/', getChorraxas)
+router.get('/penalty', countPenalties)
 router.get('/rules/', getRules)
 router.get('/crossroads/', getCrossroads)
 router.get('/computers/', getComputers)
