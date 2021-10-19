@@ -112,7 +112,7 @@ class Chorraxa {
     static async autoSearch(options) {
         const result = await database.query(
             [
-                "SELECT car_number, to_char(the_date, 'YYYY-MM-DD HH24:MI:SS') AS the_date,",
+                "SELECT kes.id, car_number, to_char(the_date, 'YYYY-MM-DD HH24:MI:SS') AS the_date,",
                 "kr.title AS rules, CONCAT('http://', CAST($1 AS VARCHAR), '/foreign/chorraxa/image?c_id=', kes.camera_id, '&p_id=1&t=all&c=photos&p=car', '&d=', kes.the_date) as event_photo,",
                 "cros.title as object_title, 'chorraxa' as type, cros.coordinates as coordinates",
                 'FROM kv_events kes',
