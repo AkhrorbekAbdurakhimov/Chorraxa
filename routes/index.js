@@ -132,7 +132,7 @@ const getEventPhoto = catchReject(async (req, res, next) => {
 });
 
 const getLastEvent = catchReject(async (req, res, next) => {
-    let host = req.headers['x-host'] || '192.168.2.68:1998'
+    let host = req.headers['x-host'] ? req.headers['x-host'] + ':8080' : '192.168.2.68:8080'
     if (!req.query.the_date) {
       return next({
         status: 400,
