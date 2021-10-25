@@ -112,9 +112,9 @@ class Chorraxa {
     static async autoSearch(options) {
         const result = await database.query(
             [
-                "SELECT car_number, to_char(the_date, 'YYYY-MM-DD HH24:MI:SS') AS the_date,",
-                "kr.title AS rules, CONCAT('http://', CAST($1 AS VARCHAR), '/foreign/chorraxa/image?c_id=', kes.camera_id, '&p_id=1&t=all&highlightCarNumber=false&c=photos&p=car', '&d=', kes.the_date) as event_photo,",
-                "CONCAT('http://', CAST($1 AS VARCHAR), '/foreign/chorraxa/image?c_id=', kes.camera_id, '&p_id=1&t=all&highlightCarNumber=false&crop=false&c=photos&p=car', '&d=', kes.the_date) as main_photo,",
+                "SELECT car_number, to_char(the_date, 'YYYY-MM-DD HH24:MI:SS') AS the_date, the_date::varchar as real_date,",
+                "kr.title AS rules, CONCAT('http://', CAST($1 AS VARCHAR), '/foreign/chorraxa/image?c_id=', kes.camera_id, '&p_id=1&t=all&highlightCarNumber=false&c=photos&p=car') as event_photo,",
+                "CONCAT('http://', CAST($1 AS VARCHAR), '/foreign/chorraxa/image?c_id=', kes.camera_id, '&p_id=1&t=all&highlightCarNumber=false&crop=false&c=photos&p=car') as main_photo,",
                 "cros.title as object_title, 'chorraxa' as type, cros.coordinates as coordinates",
                 'FROM kv_events kes',
                 getJoins(),
@@ -123,8 +123,8 @@ class Chorraxa {
         );
         
         result.rows.map(el => {
-            el.event_photo = el.event_photo.split('&d=')[0] + "&d=" + encodeURIComponent(el.event_photo.split('&d=')[1])
-            el.main_photo = el.main_photo.split('&d=')[0] + "&d=" + encodeURIComponent(el.main_photo.split('&d=')[1])
+            el.event_photo = `${el.event_photo}&d=${encodeURIComponent(el.real_date)}`;
+            el.main_photo = `${el.main_photo}&d=${encodeURIComponent(el.real_date)}`;
         })
         return result.rows || [];
     }
@@ -154,7 +154,7 @@ class Chorraxa {
     static async getLastEvent(previousTheDate, host) {
         try {
             const sql = `
-            SELECT camera_id, the_date::varchar, cros.coordinates, CONCAT('http://', CAST($2 AS VARCHAR), '/foreign/chorraxa/image?c_id=', camera_id, '&p_id=1&t=all&c=photos&p=car', '&d=', the_date) as event_photo
+            SELECT camera_id, the_date::varchar, cros.coordinates, CONCAT('http://', CAST($2 AS VARCHAR), '/foreign/chorraxa/image?c_id=', camera_id, '&p_id=1&t=all&c=photos&p=car') as event_photo
             FROM
                 kv_events e
             JOIN
@@ -171,7 +171,7 @@ class Chorraxa {
                 5`;
             const result = await database.query(sql, [previousTheDate, host]);
             result.rows.map(el => {
-                el.event_photo = el.event_photo.split('&d=')[0] + "&d=" + encodeURIComponent(el.event_photo.split('&d=')[1])
+                el.event_photo = `${el.event_photo}&d=${encodeURIComponent(el.the_date)}`;
             })
             return result.rows || [];
         } catch (error) {
