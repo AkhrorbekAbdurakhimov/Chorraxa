@@ -113,8 +113,8 @@ class Chorraxa {
         const result = await database.query(
             [
                 "SELECT car_number, to_char(the_date, 'YYYY-MM-DD HH24:MI:SS') AS the_date,",
-                "kr.title AS rules, CONCAT('http://', CAST($1 AS VARCHAR), ':8080/foreign/chorraxa/image?c_id=', kes.camera_id, '&p_id=1&t=all&highlightCarNumber=false&c=photos&p=car', '&d=', kes.the_date) as event_photo,",
-                "CONCAT('http://', CAST($1 AS VARCHAR), ':8080/foreign/chorraxa/image?c_id=', kes.camera_id, '&p_id=1&t=all&highlightCarNumber=false&crop=false&c=photos&p=car') as main_photo,",
+                "kr.title AS rules, CONCAT('http://', CAST($1 AS VARCHAR), '/foreign/chorraxa/image?c_id=', kes.camera_id, '&p_id=1&t=all&highlightCarNumber=false&c=photos&p=car', '&d=', kes.the_date) as event_photo,",
+                "CONCAT('http://', CAST($1 AS VARCHAR), '/foreign/chorraxa/image?c_id=', kes.camera_id, '&p_id=1&t=all&highlightCarNumber=false&crop=false&c=photos&p=car') as main_photo,",
                 "cros.title as object_title, 'chorraxa' as type, cros.coordinates as coordinates",
                 'FROM kv_events kes',
                 getJoins(),
@@ -170,11 +170,10 @@ class Chorraxa {
                 5`;
             const result = await database.query(sql, [previousTheDate, host]);
             result.rows.map(el => {
-                el.event_photo = el.event_photo.split('=')[0] + "=" + el.event_photo.split('=')[1] + "=" + el.event_photo.split('=')[2] + "=" + el.event_photo.split('=')[3] + "=" + el.event_photo.split('=')[4] + "=" + el.event_photo.split('=')[5] + "=" + encodeURIComponent(el.event_photo.split('=')[6])
+                el.event_photo = el.event_photo.split('&d=')[0] + "&d=" + encodeURIComponent(el.event_photo.split('&d=')[1])
             })
             return result.rows || [];
         } catch (error) {
-            console.log(error);
             return [];
         }
     }

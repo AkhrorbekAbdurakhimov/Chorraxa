@@ -115,22 +115,6 @@ const autoSearchEvent = catchReject(async (req, res) => {
     });
 })
 
-const getEventPhoto = catchReject(async (req, res, next) => {
-    const { error, value } = getPhoto.validate(req.query);
-    if (error) {
-        return next({
-            status: 400,
-            message: error.details[0].message,
-        });
-    }
-    const image = await Chorraxa.getImage(value.camera_id, value.the_date);
-    if (image.length > 0) {
-        res.setHeader('Content-Type', 'image/jpeg');
-        return res.send(image[0].photos);
-    }
-    return res.sendStatus(404);
-});
-
 const getLastEvent = catchReject(async (req, res, next) => {
     let host = req.headers['x-host'] ? req.headers['x-host'] + ':8080'  : '192.168.2.68:8080'
     if (!req.query.the_date) {
@@ -165,11 +149,7 @@ const countPenalties = catchReject(async (req, res, next) => {
 router.use(
     '/image',
     proxy('http://101.4.3.2:443', {
-      proxyReqPathResolver: (req) => {
-         console.log(req.body);
-        console.log(url.format(req.url, req.body));
-        return "/image" +  url.format(req.url, req.body);
-      },
+      proxyReqPathResolver: (req) => "/image" +  url.format(req.url, req.body),
       proxyReqOptDecorator: (proxyReqOpt, srcReq) => {
         if (srcReq.headers['x-host']) {
           proxyReqOpt.headers['x-host'] = srcReq.headers['x-host'];
@@ -198,7 +178,6 @@ router.get('/computers/', getComputers)
 router.get('/cameras/', getCameras);
 router.get('/search/', searchEvent);
 router.post('/auto-search', autoSearchEvent);
-// router.get('/image/', getEventPhoto);
 router.get('/last-event/', getLastEvent);
 
 module.exports = router;
